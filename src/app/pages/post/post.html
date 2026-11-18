@@ -1,0 +1,83 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+  <div class="container" style="max-width: 700px;">
+    <a class="navbar-brand fw-bold" href="javascript:void(0)">
+      SHD Social
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-white small fw-semibold">&#64;{{ auth.username() }}</span>
+      <button class="btn btn-outline-light btn-sm rounded-pill px-3" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-1"></i> Salir
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4" style="max-width: 700px;">
+  <!-- Caja para crear nuevo Post -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+      <h6 class="card-title fw-bold text-primary mb-3">¿Qué está pasando?</h6>
+      <form (ngSubmit)="createPost()">
+        <div class="mb-2">
+          <input type="text" class="form-control border-0 bg-light" [(ngModel)]="newPost.title" name="title" placeholder="Título de tu publicación..." required>
+        </div>
+        <div class="mb-3">
+          <textarea class="form-control border-0 bg-light" rows="2" [(ngModel)]="newPost.body" name="body" placeholder="Escribe el contenido aquí..." required></textarea>
+        </div>
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary w-100 fw-semibold">
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Spinner de carga -->
+  @if (postService.loading()) {
+    <div class="text-center my-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  }
+
+  <!-- Feed de publicaciones -->
+  @for (post of postService.posts(); track post.id) {
+    <div class="card shadow-sm mb-3 border-0">
+      <div class="card-body">
+        @if (editingPost()?.id !== post.id) {
+          <div class="d-flex align-items-center mb-2">
+            <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 40px; height: 40px;">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div>
+              <h6 class="mb-0 fw-bold">Usuario #{{ post.userId || 1 }}</h6>
+              <small class="text-muted">&#64;usuario_shd · ID: {{ post.id }}</small>
+            </div>
+          </div>
+
+          <h6 class="fw-bold mt-2">{{ post.title }}</h6>
+          <p class="card-text text-secondary mb-3">{{ post.body }}</p>
+
+          <!-- Botones en la parte inferior del texto -->
+          <div class="d-flex justify-content-end gap-2 border-top pt-2">
+            <button class="btn btn-danger btn-sm" (click)="deletePost(post.id)">
+              Borrar
+            </button>
+            <button class="btn btn-primary btn-sm" (click)="startEdit(post)">
+              Actualizar
+            </button>
+          </div>
+        } @else {
+          <h6 class="fw-bold text-primary mb-2">Editando publicación</h6>
+          <input type="text" class="form-control mb-2" [(ngModel)]="editingPost()!.title">
+          <textarea class="form-control mb-3" rows="2" [(ngModel)]="editingPost()!.body"></textarea>
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-sm btn-secondary rounded-pill px-3" (click)="cancelEdit()">Cancelar</button>
+            <button class="btn btn-sm btn-success rounded-pill px-3" (click)="saveEdit()">Guardar</button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
